@@ -1,0 +1,15 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "name": "Default",
+            "cwd": "/Users/giacomoseno/Documents/Computer Engineering/Operations Research 2/TSP",
+            "binaryPath": "/Users/giacomoseno/Documents/Computer Engineering/Operations Research 2/TSP/tsp",
+            //"binaryArgs": ["-file", "./a280.opt.tour", "-int_costs"],
+            "binaryArgs": ["-n", "1000", "-grasp", "3", "-seed", "32", "-patch_heur", "1", "-tl", "240"],
+            "makeArgs": [],
+        },
+    ],
+    "files.associations": {
+        "cmath": "c"
+    }
+}
