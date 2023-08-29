@@ -239,11 +239,12 @@ double benders_loop(instance *inst, int* best_sol, double timelimit)
 	build_sol(xstar, inst, succ, comp, &ncomp);
 
 	// if there are multiple connected components
-	while (ncomp > 1){
+	while (ncomp > 1 && timelimit > (second() - inst->t_start)){
 		// add sec constraint
 		for (int k = 1; k <= ncomp; k++){
 			add_one_sec(inst, env, lp, k, comp, NULL);
 		}
+		CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit - (second() - inst->t_start)); 
 		// solve current model
 		if ( CPXmipopt(env,lp) ) print_error("CPXmipopt() error after sec"); 
 		// retrieve x* solution of current model
@@ -392,7 +393,13 @@ double improved_benders_loop(instance *inst, int *best_sol, double timelimit){
 
 		if (inst->verbose >= 60)
 			printf("\nCost before patching: %f", curr_cost);
-		curr_cost = patching_heuristic(inst, env, lp, succ, comp, &ncomp, curr_cost, NULL); // apply patching heuristic + two_opt
+		
+		double patch_result = patching_heuristic(inst, env, lp, succ, comp, &ncomp, curr_cost, NULL); // apply patching heuristic + two_opt
+		if (patch_result < 0){
+			printf("\nPatching Heuristic exceeded the time limit");
+		} else {
+			curr_cost = patch_result; // in this case the function patching_heuristic has changed the values in the succ vector
+		}
 		if (inst->verbose >= 60)
 			printf("\nCost after patching: %f\n", curr_cost);
 
@@ -450,7 +457,10 @@ static int CPXPUBLIC incumbent_callback(CPXCALLBACKCONTEXTptr context, CPXLONG c
 	if (ncomp > 1){
 		for (int k = 1; k <= ncomp; k++){ add_one_sec(inst, NULL, NULL, k, comp, context); }
 		if (inst->patching_heur) {
-			curr_cost = patching_heuristic(inst, NULL, NULL, succ, comp, &ncomp, curr_cost, context);
+			
+			double patch_result = patching_heuristic(inst, NULL, NULL, succ, comp, &ncomp, curr_cost, context);
+			if (patch_result < 0) printf("\nThe Patching Heuristic exceeded the time limit, so it did not perform any changes");
+			else curr_cost = patch_result;
 			if (inst->verbose >= 80) printf("\n[Callback] : cost after patching heuristic is %f\n", curr_cost);
 			update_best(inst, succ, curr_cost); // needed in case of a early stop due to low timelimit --> at least we have a tsp feasible solution other than the one given by the heuristic method
 			if (curr_cost > 0 && curr_cost < incumbent){

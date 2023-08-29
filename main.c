@@ -63,12 +63,14 @@ int main(int argc, char **argv)
 	
 	int *best_sol = (int*) malloc(inst.nnodes * sizeof(int));
 
-	double vns_cost = VNS(&inst, best_sol, 240);
-	printf("TSP_n%d_seed%d , %f", inst.nnodes, inst.randomseed, vns_cost);
+	double benders = benders_loop(&inst, best_sol, 30);
+	printf("TSP_n%d_seed%d , %f", inst.nnodes, inst.randomseed, benders);
+
+
     
 	if (VERBOSE >= 10)   
 	{
-		printf("... TSP problem solved in %lf sec.s with solution\n", second()-inst.t_start, vns_cost);  
+		printf("... TSP problem solved in %lf sec.s with solution\n", second()-inst.t_start, benders);  
 	}
 	
 	free(best_sol);

@@ -72,6 +72,12 @@ double TSPgreedy(instance *inst, int* best_sol, double grasp_parameter, double t
 				double curr_dist = eucl_dist(i, j, inst);
 				// if curr_dist is the new minimum update the variables
 				if (curr_dist < min_dist){
+					// move the first min_cost to the second one
+					second_min_dist = min_dist;
+					second_min_j = min_j;
+					second_min_j_index = min_j_index;
+
+					// update the new min_cost
 					min_dist = curr_dist;
 					min_j = j;
 					min_j_index = index;
@@ -225,6 +231,13 @@ double TSPextramileage(instance *inst, int* best_sol, int* covered_nodes_succ, i
 					double delta = eucl_dist(i, uncovered_nodes_succ[h], inst) + eucl_dist(uncovered_nodes_succ[h], covered_nodes_succ[i], inst) - eucl_dist(i, covered_nodes_succ[i], inst);
 					// if delta is the new minimum, update the variables
 					if (delta < min_cost){
+						// move the first min_cost to the second
+						second_min_cost = min_cost;
+						second_min_h = min_h;
+						second_uncovered_index_h = uncovered_index_h;
+						second_min_i = min_i;
+
+						// update the new min_cost
 						min_cost = delta;
 						min_h = uncovered_nodes_succ[h];
 						uncovered_index_h = h;
